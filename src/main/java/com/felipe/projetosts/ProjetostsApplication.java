@@ -1,5 +1,6 @@
 package com.felipe.projetosts;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +13,20 @@ import com.felipe.projetosts.domain.Cidade;
 import com.felipe.projetosts.domain.Cliente;
 import com.felipe.projetosts.domain.Endereco;
 import com.felipe.projetosts.domain.Estado;
+import com.felipe.projetosts.domain.Pagamento;
+import com.felipe.projetosts.domain.PagamentoComBoleto;
+import com.felipe.projetosts.domain.PagamentoComCartao;
+import com.felipe.projetosts.domain.Pedido;
 import com.felipe.projetosts.domain.Produto;
+import com.felipe.projetosts.domain.enums.EstadoPagamento;
 import com.felipe.projetosts.domain.enums.TipoCliente;
 import com.felipe.projetosts.repositories.CategoriaRepository;
 import com.felipe.projetosts.repositories.CidadeRepository;
 import com.felipe.projetosts.repositories.ClienteRepository;
 import com.felipe.projetosts.repositories.EnderecoRepository;
 import com.felipe.projetosts.repositories.EstadoRepository;
+import com.felipe.projetosts.repositories.PagamentoRepository;
+import com.felipe.projetosts.repositories.PedidoRepository;
 import com.felipe.projetosts.repositories.ProdutoRepository;
 
 @SpringBootApplication
@@ -41,6 +49,13 @@ public class ProjetostsApplication implements CommandLineRunner {
 	
 	@Autowired 
 	private EnderecoRepository enderecoRepository;
+	
+	@Autowired
+	private PedidoRepository pedidoRepository;
+	
+	@Autowired
+	private PagamentoRepository pagamentoRepository;
+	
 
 	public static void main(String[] args) {
 		SpringApplication.run(ProjetostsApplication.class, args);
@@ -69,6 +84,17 @@ public class ProjetostsApplication implements CommandLineRunner {
 		Endereco e1 = new Endereco(null, "Rua Alonso Medeiros", "180", "Casa", "Cohab Restinga", "97544020", cli1, c1);
 		Endereco e2 = new Endereco(null, "Avenida Matos", "150", "Apartamento", "Centro", "97544000", cli1, c2);
 		
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+		
+		Pedido ped1 = new Pedido(null, sdf.parse("30/09/2017 10:32"), cli1, e1);
+		Pedido ped2 = new Pedido(null, sdf.parse("10/10/2017 19:35"), cli1, e2);
+		
+		Pagamento pagto1 = new PagamentoComCartao(null, EstadoPagamento.QUITADO, ped1, 6);
+		ped1.setPagamento(pagto1);
+		
+		Pagamento pagto2 = new PagamentoComBoleto(null, EstadoPagamento.PENDENTE, ped2, sdf.parse("20/10/2017 00:00"), null);
+		ped2.setPagamento(pagto2);
+		
 		/*Adiciona produtos as categorias*/
 		
 		/*Categoria add Produto*/
@@ -87,6 +113,9 @@ public class ProjetostsApplication implements CommandLineRunner {
 		/*Cliente add Endereco*/
 		cli1.getEnderecos().addAll(Arrays.asList(e1, e2));
 		
+		/*Cliente add Pedido*/
+		cli1.getPedidos().addAll(Arrays.asList(ped1, ped2));
+		
 		/*Rapositorios*/
 		categoriaRepository.saveAll(Arrays.asList(cat1, cat2));
 		produtoRepository.saveAll(Arrays.asList(p1, p2, p3));
@@ -94,6 +123,9 @@ public class ProjetostsApplication implements CommandLineRunner {
 		cidadeRepository.saveAll(Arrays.asList(c1, c2, c3));
 		clienteRepository.saveAll(Arrays.asList(cli1));
 		enderecoRepository.saveAll(Arrays.asList(e1, e2));
+		pedidoRepository.saveAll(Arrays.asList(ped1, ped2));
+		pagamentoRepository.saveAll(Arrays.asList(pagto1, pagto2));
+		
 	}
 
 }
